@@ -61,7 +61,7 @@ def speak(text):
 
 # Voice input section
 st.subheader("🎤 Record Your Question")
-audio_file = st.audio_input("Tap to record your question")
+audio_file = st.audio_input("Tap to record your question",max_duration = 9)
 
 if audio_file:
     with tempfile.NamedTemporaryFile(delete=False, suffix=".wav") as tmp:
@@ -86,4 +86,5 @@ if audio_file:
     except sr.UnknownValueError:
         st.error("❌ Could not understand your speech.")
     except sr.RequestError as e:
+
         st.error(f"❌ Speech recognition error: {e}")
