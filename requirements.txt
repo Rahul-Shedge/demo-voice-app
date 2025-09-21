@@ -1,17 +1,5 @@
-# openai 
-# gtts 
-# SpeechRecognition 
-# # pyaudio 
-# streamlit
-# python-dotenv
-
-
-# streamlit openai gtts SpeechRecognition python-dotenv
-# pip install 
-streamlit 
-sounddevice 
-numpy 
-speechrecognition 
-gtts 
-python-dotenv 
+streamlit
+SpeechRecognition
+gTTS
+python-dotenv
 openai
