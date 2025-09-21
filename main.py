@@ -98,3 +98,5 @@ if st.button("Start Listening"):
             st.error("❌ Could not understand your speech.")
         except sr.RequestError as e:
             st.error(f"❌ Speech recognition error: {e}")
+
+
