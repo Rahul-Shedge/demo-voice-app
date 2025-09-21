@@ -10,25 +10,21 @@ from openai import OpenAI
 load_dotenv()
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
+# Streamlit UI setup
 st.set_page_config(page_title="Voice Interview Bot", page_icon="🎙️")
 st.title("🎙️ Voice Interview Bot")
-st.write("Record your question below. The bot will respond with voice.")
+st.write("Speak your question. The bot will listen, transcribe, and respond with voice.")
 
-# Sidebar for personal context
-st.sidebar.header("📝 Personal Context")
-context_text = st.sidebar.text_area("Paste your resume or background info here", height=200)
-if st.sidebar.button("Save Context"):
-    st.session_state["context_text"] = context_text
-    st.sidebar.success("✅ Context saved!")
-
-# Load context from session or fallback file
+# Load personal context from info.txt
 def load_context(file_path="info.txt"):
-    if "context_text" in st.session_state:
-        return st.session_state["context_text"]
     try:
         with open(file_path, "r", encoding="utf-8") as f:
             return f.read().strip()
-    except:
+    except FileNotFoundError:
+        st.error("❌ 'info.txt' file not found. Please ensure it exists in the app directory.")
+        return None
+    except Exception as e:
+        st.error(f"❌ Error reading 'info.txt': {e}")
         return None
 
 # Generate answer using OpenAI
@@ -40,18 +36,32 @@ def generate_answer(question, context_text):
         f"Question:\n{question}\n\n"
         "Answer clearly and professionally in 3–5 sentences."
     )
-    response = client.chat.completions.create(
-        model="gpt-4",
-        messages=[
-            {"role": "system", "content": "You are a skilled interviewee."},
-            {"role": "user", "content": prompt},
-        ]
-    )
-    return response.choices[0].message.content
+    try:
+        response = client.chat.completions.create(
+            model="gpt-4",
+            messages=[
+                {"role": "system", "content": "You are a skilled interviewee."},
+                {"role": "user", "content": prompt},
+            ]
+        )
+        return response.choices[0].message.content
+    except Exception as e:
+        st.error(f"❌ OpenAI API error: {e}")
+        return None
 
-# Record and transcribe audio
+# Speak response using gTTS
+def speak(text):
+    try:
+        tts = gTTS(text)
+        with tempfile.NamedTemporaryFile(delete=False, suffix=".mp3") as tmp:
+            tts.save(tmp.name)
+            st.audio(tmp.name, format="audio/mp3")
+    except Exception as e:
+        st.error(f"❌ Text-to-speech error: {e}")
+
+# Voice input section
 st.subheader("🎤 Record Your Question")
-audio_file = st.audio_input("Speak your question here")
+audio_file = st.audio_input("Tap to record your question")
 
 if audio_file:
     with tempfile.NamedTemporaryFile(delete=False, suffix=".wav") as tmp:
@@ -61,6 +71,7 @@ if audio_file:
     recognizer = sr.Recognizer()
     with sr.AudioFile(tmp_path) as source:
         audio_data = recognizer.record(source)
+
     try:
         question = recognizer.recognize_google(audio_data)
         st.success(f"🗣️ Transcribed Question: {question}")
@@ -68,13 +79,10 @@ if audio_file:
         context = load_context()
         if context:
             answer = generate_answer(question, context)
-            st.markdown("**🤖 Bot Answer:**")
-            st.write(answer)
-
-            tts = gTTS(answer)
-            with tempfile.NamedTemporaryFile(delete=False, suffix=".mp3") as tmp:
-                tts.save(tmp.name)
-                st.audio(tmp.name, format="audio/mp3")
+            if answer:
+                st.markdown("**🤖 Bot Answer:**")
+                st.write(answer)
+                speak(answer)
     except sr.UnknownValueError:
         st.error("❌ Could not understand your speech.")
     except sr.RequestError as e:
