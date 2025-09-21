@@ -1,9 +1,10 @@
 openai 
 gtts 
 SpeechRecognition 
-# pyaudio 
+pyaudio
 streamlit
 python-dotenv
 
 
 # streamlit openai gtts SpeechRecognition python-dotenv
+
