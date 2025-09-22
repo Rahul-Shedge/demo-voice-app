@@ -12,8 +12,8 @@ client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
 
 
 
-st.set_page_config(page_title="Voice Interview Bot", page_icon="🎙️")
-st.title("🎙️ Voice Interview Bot")
+st.set_page_config(page_title="Voice Bot", page_icon="🎙️")
+st.title("🎙️ Voice Bot")
 st.write("Speak your question. The bot will listen, transcribe, and respond with voice.")
 
 
@@ -90,4 +90,5 @@ if audio_file:
     except sr.RequestError as e:
 
         st.error(f" Speech recognition error: {e}")
+
 
