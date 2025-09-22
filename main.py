@@ -6,29 +6,29 @@ import speech_recognition as sr
 from dotenv import load_dotenv
 from openai import OpenAI
 
-# Load environment variables
+
 load_dotenv()
 client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
 
 
-# Streamlit UI setup
+
 st.set_page_config(page_title="Voice Interview Bot", page_icon="🎙️")
 st.title("🎙️ Voice Interview Bot")
 st.write("Speak your question. The bot will listen, transcribe, and respond with voice.")
 
-# Load personal context from info.txt
+
 def load_context(file_path="info.txt"):
     try:
         with open(file_path, "r", encoding="utf-8") as f:
             return f.read().strip()
     except FileNotFoundError:
-        st.error("❌ 'info.txt' file not found. Please ensure it exists in the app directory.")
+        st.error("'info.txt' file not found. Please ensure it exists in the app directory.")
         return None
     except Exception as e:
-        st.error(f"❌ Error reading 'info.txt': {e}")
+        st.error(f" Error reading 'info.txt': {e}")
         return None
 
-# Generate answer using OpenAI
+
 def generate_answer(question, context_text):
     prompt = (
         "You are a confident and professional candidate answering an interview question. "
@@ -47,10 +47,10 @@ def generate_answer(question, context_text):
         )
         return response.choices[0].message.content
     except Exception as e:
-        st.error(f"❌ OpenAI API error: {e}")
+        st.error(f" OpenAI API error: {e}")
         return None
 
-# Speak response using gTTS
+
 def speak(text):
     try:
         tts = gTTS(text)
@@ -58,9 +58,9 @@ def speak(text):
             tts.save(tmp.name)
             st.audio(tmp.name, format="audio/mp3")
     except Exception as e:
-        st.error(f"❌ Text-to-speech error: {e}")
+        st.error(f" Text-to-speech error: {e}")
 
-# Voice input section
+
 st.subheader("🎤 Record Your Question")
 # audio_file = st.audio_input("Tap to record your question")
 audio_file = st.audio_input("Tap to record")
@@ -76,7 +76,7 @@ if audio_file:
 
     try:
         question = recognizer.recognize_google(audio_data)
-        st.success(f"🗣️ Transcribed Question: {question}")
+        st.success(f" Transcribed Question: {question}")
 
         context = load_context()
         if context:
@@ -86,7 +86,8 @@ if audio_file:
                 st.write(answer)
                 speak(answer)
     except sr.UnknownValueError:
-        st.error("❌ Could not understand your speech.")
+        st.error(" Could not understand your speech.")
     except sr.RequestError as e:
 
-        st.error(f"❌ Speech recognition error: {e}")
+        st.error(f" Speech recognition error: {e}")
+
